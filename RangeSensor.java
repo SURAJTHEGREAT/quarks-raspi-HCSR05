@@ -12,8 +12,9 @@ import org.apache.edgent.function.Supplier;
 public class RangeSensor implements Supplier<Double> {
 private final static float SOUND_SPEED = 340.29f;  // speed of sound in m/s
 private final static int TRIG_DURATION_IN_MICROS = 10; // trigger duration of 10 micro s
-private final static int WAIT_DURATION_IN_MILLIS = 60; // wait 60 milli s
+private final static int WAIT_DURATION_IN_MILLIS = 600; // wait 60 milli s
 private final static int TIMEOUT = 2100;
+private final static Double infinite=9999.99;
 private GpioController gpio = GpioFactory.getInstance();
 private Pin echoRPin = RaspiPin.GPIO_05; // PI4J custom numbering (pin 18 on RPi2)
 private Pin trigRPin = RaspiPin.GPIO_04; // PI4J custom numbering (pin 16 on RPi2) 
@@ -28,7 +29,15 @@ public RangeSensor(){
 
 @Override
 public Double get()  {
-     return getDistance();
+try{
+ Thread.sleep( WAIT_DURATION_IN_MILLIS );    
+  
+
+}
+catch (InterruptedException ex) {
+                System.err.println( "Interrupt during trigger" );
+            }
+return getDistance();
 }
 
 
@@ -71,11 +80,11 @@ public Double getDistance()  {
             countdown--;
         }
         long end = System.nanoTime();
-       /* 
+       
         if( countdown <= 0 ) {
-            throw new TimeoutException( "Timeout waiting for signal end" );
+            return infinite;
         }
-       */ 
+       else
         return (Double)Math.ceil( ( end - start ) / 1000.0 );  // Return micro seconds
     }
 
